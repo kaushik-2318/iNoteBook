@@ -1,15 +1,14 @@
 const connectToMongo = require('./db');
+const express = require('express')
 connectToMongo();
 
+const app = express()
+const port = 3000
 
+app.get('/', (req, res) => {
+  res.send('Hello Kaushik!')
+})
 
-// const mongoose = require('mongoose');
-// const dotenv=  require('dotenv');
-// dotenv.config();
-
-
-
-// mongoose
-//     .connect(process.env.URL)
-//     .then(()=> {console.log('Server Connected')})
-//     .catch((e)=>{console.log(e)})
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
