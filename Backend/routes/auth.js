@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 
 const JWT_SECRET = 'Hello';
 
-//Create a User using: post"/api/auth/Create User". Doesn't require auth
+//Create a User using: post"/api/auth/Create User". No Login Required
 
 router.post(
   "/createuser",
@@ -57,4 +57,45 @@ router.post(
     }
   }
 );
+
+//Authrntication a User using: post"/api/auth/login". No Login Required
+
+router.post(
+  "/login",
+  [
+    body("email", "Enter a Valid Email").isEmail(),
+    body("password", "Password Can't be blank").exists(),
+  ],
+  async (req, res) => {
+        //If there are Error return bad request and the error
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
+        const {email, password}  =req.body;
+        try{
+          let user = await User.findOne({email});
+          if(!user){
+            return res.status(400).json({ message:"Please try to login with correct credentials"});
+          }
+          const passwordcompare = await bcrypt.compare(password, user.password);
+          if(!passwordcompare){
+            return res.status(400).json({ message:"Please try to login with correct credentials"});
+          }
+
+          const data = {
+            user:{
+              id: user.id
+            }
+          }
+          const authtoken = jwt.sign(data, JWT_SECRET);
+          res.json({authtoken})
+
+        }catch(error){
+          console.error(error.message);
+          res.status(500).send("Internal Server Error");
+        }
+  })
+
 module.exports = router;
