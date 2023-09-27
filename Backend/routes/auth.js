@@ -2,12 +2,13 @@ const express = require("express");
 const User = require("../models/User");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
+var bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
+var fetchuser = require('../middleware/fetchUser');
 
-const JWT_SECRET = 'Hello';
+const JWT_SECRET = "Iloveyouriy@";
 
-//Create a User using: post"/api/auth/Create User". No Login Required
+//ROUTE 1: Create a User using: post"/api/auth/Create User". No Login Required
 
 router.post(
   "/createuser",
@@ -32,7 +33,7 @@ router.post(
       }
 
       var salt = await bcrypt.genSaltSync(10);
-      var secPass = await bcrypt.hash(req.body.password, salt)
+      var secPass = await bcrypt.hash(req.body.password, salt);
 
       user = await User.create({
         name: req.body.name,
@@ -41,16 +42,14 @@ router.post(
       });
 
       const data = {
-        user:{
-          id: user.id
-        }
-      }
+        user: {
+          id: user.id,
+        },
+      };
       const authtoken = jwt.sign(data, JWT_SECRET);
       console.log(authtoken);
       // res.json(user);
-      res.json({authtoken})
-
-
+      res.json({ authtoken });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Some Error Occur");
@@ -58,7 +57,7 @@ router.post(
   }
 );
 
-//Authrntication a User using: post"/api/auth/login". No Login Required
+//Route 2: Authentication a User using: post"/api/auth/login". No Login Required
 
 router.post(
   "/login",
@@ -67,35 +66,54 @@ router.post(
     body("password", "Password Can't be blank").exists(),
   ],
   async (req, res) => {
-        //If there are Error return bad request and the error
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
-        }
+    //If there are Error return bad request and the error
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-        const {email, password}  =req.body;
-        try{
-          let user = await User.findOne({email});
-          if(!user){
-            return res.status(400).json({ message:"Please try to login with correct credentials"});
-          }
-          const passwordcompare = await bcrypt.compare(password, user.password);
-          if(!passwordcompare){
-            return res.status(400).json({ message:"Please try to login with correct credentials"});
-          }
+    const { email, password } = req.body;
+    try {
+      let user = await User.findOne({ email });
+      if (!user) {
+        return res
+          .status(400)
+          .json({ message: "Please try to login with correct credentials" });
+      }
+      const passwordcompare = await bcrypt.compare(password, user.password);
+      if (!passwordcompare) {
+        return res
+          .status(400)
+          .json({ message: "Please try to login with correct credentials" });
+      }
 
-          const data = {
-            user:{
-              id: user.id
-            }
-          }
-          const authtoken = jwt.sign(data, JWT_SECRET);
-          res.json({authtoken})
+      const data = {
+        user: {
+          id: user.id,
+        },
+      };
+      const authtoken = jwt.sign(data, JWT_SECRET);
+      res.json({ authtoken });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
-        }catch(error){
-          console.error(error.message);
-          res.status(500).send("Internal Server Error");
-        }
-  })
+//Route 3: Get loggedin User detail using: POST "/api/auth/getuser".login required
+router.post(
+  "/getuser", fetchuser ,async (req, res) => {
+
+    try {
+      userId = req.user.id;
+      const user = await User.findById(userId).select("-password");
+      res.send(user)
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
 module.exports = router;
