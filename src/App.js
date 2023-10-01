@@ -3,9 +3,11 @@ import Navbar from "./Components/Navbar";
 import Home from "./Components/Home";
 import About from "./Components/About";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NoteState from "./Context/notes/NoteState";
 
 function App() {
   return (
+    <NoteState>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -13,6 +15,7 @@ function App() {
           <Route exact path="/about" element={<About />} />
         </Routes>
       </BrowserRouter>
+    </NoteState>
   );
 }
 
