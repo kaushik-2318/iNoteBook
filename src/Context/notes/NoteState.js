@@ -65,10 +65,35 @@ const NoteState = (props) => {
       "tag": "personal",
       "date": "2021-09-03T14:20:09.668Z",
       "__v": 0
+    },{
+      "_id": "61322f19553781a8ca8d0e08",
+      "user": "6131dc5e3e4037cd4734a066",
+      "title": "My Title",
+      "description": "Please wake up early",
+      "tag": "personal",
+      "date": "2021-09-03T14:20:09.668Z",
+      "__v": 0
+    },{
+      "_id": "61322f19553781a8ca8d0e08",
+      "user": "6131dc5e3e4037cd4734a066",
+      "title": "My Title",
+      "description": "Please wake up early",
+      "tag": "personal",
+      "date": "2021-09-03T14:20:09.668Z",
+      "__v": 0
+    },{
+      "_id": "61322f19553781a8ca8d0e08",
+      "user": "6131dc5e3e4037cd4734a066",
+      "title": "My Title",
+      "description": "Please wake up early",
+      "tag": "personal",
+      "date": "2021-09-03T14:20:09.668Z",
+      "__v": 0
     },
   ]
 
       const [notes, setNotes] = useState(notesInitial)
+      
    
       //ADD a note
       const addnote = (title, description, tag) =>{
@@ -87,17 +112,20 @@ const NoteState = (props) => {
       }
 
       //Delete a note
-      const deletenote = () =>{
-
+      const deleteNote = (id) =>{
+        //TODO API CALL
+        console.log("Deleting the note with id" + id);
+        const newNotes = notes.filter((note) => {return note._id!==id})
+        setNotes(newNotes)
       }
 
       //Edit a note
-      const editnote = () =>{
+      const editnote = (id, title, description, tag) =>{
 
       }
 
       return(
-      <NoteContext.Provider value={{notes, addnote, deletenote, editnote}}>
+      <NoteContext.Provider value={{notes, addnote, deleteNote, editnote}}>
             {props.children}
         </NoteContext.Provider>
     )
